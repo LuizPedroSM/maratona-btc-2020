@@ -1,0 +1,250 @@
+[
+    {
+        "id": "d05c981f.492858",
+        "type": "tab",
+        "label": "Flow 4",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "5225db94.f8e484",
+        "type": "http in",
+        "z": "d05c981f.492858",
+        "name": "",
+        "url": "/api",
+        "method": "post",
+        "upload": true,
+        "swaggerDoc": "",
+        "x": 100,
+        "y": 140,
+        "wires": [
+            [
+                "c70b957e.b36a08"
+            ]
+        ]
+    },
+    {
+        "id": "c70b957e.b36a08",
+        "type": "switch",
+        "z": "d05c981f.492858",
+        "name": "Texto ou Audio",
+        "property": "req.files.length",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "gt",
+                "v": "0",
+                "vt": "num"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 140,
+        "y": 220,
+        "wires": [
+            [
+                "330f16fc.65eeda"
+            ],
+            [
+                "89c8da3a.43f408"
+            ]
+        ]
+    },
+    {
+        "id": "89c8da3a.43f408",
+        "type": "change",
+        "z": "d05c981f.492858",
+        "name": "Inclui Texto p/ Analise",
+        "rules": [
+            {
+                "t": "set",
+                "p": "text",
+                "pt": "msg",
+                "to": "req.body.text",
+                "tot": "msg"
+            },
+            {
+                "t": "set",
+                "p": "car",
+                "pt": "msg",
+                "to": "req.body.car",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 360,
+        "y": 300,
+        "wires": [
+            [
+                "ed71f8af.7f6008"
+            ]
+        ]
+    },
+    {
+        "id": "330f16fc.65eeda",
+        "type": "change",
+        "z": "d05c981f.492858",
+        "name": "Inclui Audio p/ Analise",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "req.files[0].buffer",
+                "tot": "msg"
+            },
+            {
+                "t": "set",
+                "p": "car",
+                "pt": "msg",
+                "to": "req.body.car",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 360,
+        "y": 140,
+        "wires": [
+            [
+                "36e9d9f0.6d3506"
+            ]
+        ]
+    },
+    {
+        "id": "ed71f8af.7f6008",
+        "type": "function",
+        "z": "d05c981f.492858",
+        "name": "NLU Options",
+        "func": "msg.payload = msg.text? msg.text : msg.transcription\nmsg.nlu_options =\n{\n    \"entity_model\":\"2d7618da-0768-4f33-8598-dc5d1c316b83\",\n    \"relations_model\":\"2d7618da-0768-4f33-8598-dc5d1c316b83\",\n}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 690,
+        "y": 240,
+        "wires": [
+            [
+                "1f0efd83.c1eaa2"
+            ]
+        ]
+    },
+    {
+        "id": "1f0efd83.c1eaa2",
+        "type": "natural-language-understanding",
+        "z": "d05c981f.492858",
+        "name": "",
+        "categories": false,
+        "limitcategories": "3",
+        "concepts": false,
+        "maxconcepts": "8",
+        "doc-emotion": false,
+        "doc-emotion-target": "",
+        "doc-sentiment": false,
+        "doc-sentiment-target": "",
+        "entity": true,
+        "entity-emotion": false,
+        "entity-sentiment": true,
+        "maxentities": "50",
+        "keyword": false,
+        "keyword-emotion": false,
+        "keyword-sentiment": false,
+        "maxkeywords": "50",
+        "metadata": false,
+        "relation": false,
+        "semantic": false,
+        "semantic-entities": false,
+        "semantic-keywords": false,
+        "maxsemantics": "50",
+        "limittextcharacters": "0",
+        "syntax": false,
+        "syntax-sentences": false,
+        "syntax-tokens-lemma": false,
+        "syntax-tokens-pos": false,
+        "service-endpoint": "",
+        "x": 940,
+        "y": 140,
+        "wires": [
+            [
+                "7687330a.7a16fc"
+            ]
+        ]
+    },
+    {
+        "id": "7687330a.7a16fc",
+        "type": "function",
+        "z": "d05c981f.492858",
+        "name": "Recomendacao",
+        "func": "var entidades = [];\nvar carroEnviado = msg.car;\nvar strRecomendacao = \"\";\nvar seguranca = ['RENEGADE', 'TORO', 'MAREA', 'LINEA', 'FIAT 500', 'CRONOS', 'ARGO', 'DUCATO', 'FIORINO'];\nvar consumo = ['FIAT 500', 'ARGO', 'MAREA', 'CRONOS', 'RENEGADE', 'TORO', 'FIORINO', 'DUCATO', 'LINEA'];\nvar desempenho = ['MAREA', 'ARGO', 'TORO', 'CRONOS', 'LINEA','RENEGADE', 'FIAT 500', 'DUCATO', 'FIORINO'];\nvar manutencao = ['FIORINO', 'CRONOS', 'ARGO', 'TORO', 'RENEGADE', 'FIAT 500', 'MAREA', 'LINEA', 'DUCATO'];\nvar conforto = ['MAREA', 'LINEA','TORO', 'CRONOS', 'FIAT 500', 'ARGO', 'RENEGADE', 'DUCATO', 'FIORINO'];\nvar design = ['CRONOS', 'ARGO', 'FIAT 500', 'TORO', 'RENEGADE', 'MAREA', 'LINEA', 'DUCATO', 'FIORINO'];\nvar acessorios = ['RENEGADE', 'TORO', 'ARGO', 'DUCATO', 'FIAT 500', 'CRONOS', 'LINEA', 'MAREA', 'FIORINO'];\n\n \n//Pega a resposta do NLU e coloca no Padrão de Retorno\nfor(i=0;i<msg.features.entities.length;i++){\n    \n    var objEntidades = {\n        entity: msg.features.entities[i].type,\n        sentiment: msg.features.entities[i].sentiment.score,\n        mention: msg.features.entities[i].text\n    };\n    entidades[i]=objEntidades;\n\n    var entityN =  msg.features.entities[0].type;\n    var sentimentN = msg.features.entities[0].sentiment.score;\n    \n    if(msg.features.entities[i].sentiment.score < sentimentN && msg.features.entities[i].sentiment.score < 0){\n        if (Math.abs(msg.features.entities[i].sentiment.score - sentimentN) <= 0.1 ){\n            console.log('teste')\n            \n            if(msg.features.entities[i].type == 'SEGURANCA'){\n                entityN =  msg.features.entities[i].type\n                sentimentN = msg.features.entities[i].sentiment.score\n            }\n            else if(msg.features.entities[i].type == 'CONSUMO'){\n                entityN =  msg.features.entities[i].type\n                sentimentN = msg.features.entities[i].sentiment.score\n            }\n            else if(msg.features.entities[i].type == 'DESEMPENHO'){\n                entityN =  msg.features.entities[i].type\n                sentimentN = msg.features.entities[i].sentiment.score\n            }\n            else if(msg.features.entities[i].type == 'MANUTENCAO'){\n                entityN =  msg.features.entities[i].type\n                sentimentN = msg.features.entities[i].sentiment.score\n            }\n            else if(msg.features.entities[i].type == 'CONFORTO'){\n                entityN =  msg.features.entities[i].type\n                sentimentN = msg.features.entities[i].sentiment.score\n            }\n            else if(msg.features.entities[i].type == 'DESIGN'){\n                entityN =  msg.features.entities[i].type\n                sentimentN = msg.features.entities[i].sentiment.score\n            }\n            else if(msg.features.entities[i].type == 'ACESSORIOS'){\n                entityN =  msg.features.entities[i].type\n                sentimentN = msg.features.entities[i].sentiment.score\n            }\n            \n        }else{\n            entityN =  msg.features.entities[i].type\n            sentimentN = msg.features.entities[i].sentiment.score\n        }\n    }\n}\n\nswitch(entityN) {\n  case 'SEGURANCA':\n        seguranca.splice(seguranca.indexOf(carroEnviado), 1);\n        strRecomendacao = seguranca[0];\n    break;\n  case 'CONSUMO':\n        seguranca.splice(consumo.indexOf(carroEnviado), 1);\n        strRecomendacao = consumo[0];\n    break;\n  case 'DESEMPENHO':\n        seguranca.splice(desempenho.indexOf(carroEnviado), 1);\n        strRecomendacao = desempenho[0];\n    break;\n  case 'MANUTENCAO':\n        seguranca.splice(manutencao.indexOf(carroEnviado), 1);\n        strRecomendacao = manutencao[0];\n    break;\n  case 'CONFORTO':\n        seguranca.splice(conforto.indexOf(carroEnviado), 1);\n        strRecomendacao = conforto[0];\n    break;\n  case 'DESIGN':\n        seguranca.splice(design.indexOf(carroEnviado), 1);\n        strRecomendacao = design[0];\n    break;\n  case 'ACESSORIOS':\n        seguranca.splice(acessorios.indexOf(carroEnviado), 1);\n        strRecomendacao = acessorios[0];\n    break;\n  case 'MODELO':\n        seguranca.splice(seguranca.indexOf(carroEnviado), 1);\n        strRecomendacao = seguranca[0];\n    break;\n}\n\nif (entidades.length === 0 || sentimentN >= 0){\n    strRecomendacao = ''\n}\n\nvar resposta = {\n  recommendation: strRecomendacao,\n  entities : entidades,\n  //entityN,\n  //sentimentN\n};\n\nmsg.payload = resposta;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 960,
+        "y": 240,
+        "wires": [
+            [
+                "dea47b6e.7c5df8"
+            ]
+        ]
+    },
+    {
+        "id": "dea47b6e.7c5df8",
+        "type": "http response",
+        "z": "d05c981f.492858",
+        "name": "Resposta",
+        "statusCode": "",
+        "headers": {
+            "content-type": "application/json"
+        },
+        "x": 1100,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "36e9d9f0.6d3506",
+        "type": "watson-speech-to-text",
+        "z": "d05c981f.492858",
+        "name": "",
+        "alternatives": "1",
+        "speakerlabels": false,
+        "smartformatting": true,
+        "lang": "pt-BR",
+        "langhidden": "pt-BR",
+        "langcustom": "NoCustomisationSetting",
+        "langcustomhidden": "",
+        "custom-weight": "0.5",
+        "band": "NarrowbandModel",
+        "bandhidden": "NarrowbandModel",
+        "keywords": "Android,Auto",
+        "keywords-threshold": "",
+        "word-confidence": true,
+        "password": "",
+        "apikey": "vUuNwHwoVtuTRi7rx7Of1jIGbpcvXIWHxtob4Y_p5EgU",
+        "payload-response": false,
+        "streaming-mode": false,
+        "streaming-mute": true,
+        "auto-connect": false,
+        "discard-listening": false,
+        "disable-precheck": true,
+        "service-endpoint": "",
+        "x": 580,
+        "y": 140,
+        "wires": [
+            [
+                "ed71f8af.7f6008"
+            ]
+        ]
+    }
+]
